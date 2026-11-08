@@ -1,0 +1,6 @@
+{
+  "name": "Gemini Chat",
+  "description": "Multi-user AI chat application with Gemini API, projects, tools, and streaming",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

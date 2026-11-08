@@ -1,0 +1,97 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with display name, daily quota tracking, and settings",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Auth UID of the user" },
+        "displayName": { "type": "string", "description": "User display name" },
+        "email": { "type": "string", "description": "User email address" },
+        "dailyMessageCount": { "type": "integer", "description": "Number of messages sent today" },
+        "quotaResetEpochDay": { "type": "integer", "description": "Epoch day of current quota count" },
+        "customApiKey": { "type": "string", "description": "Optional user custom Gemini API key for unlimited quota" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last update timestamp" }
+      },
+      "required": ["userId", "displayName", "email", "dailyMessageCount", "quotaResetEpochDay", "createdAt", "updatedAt"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Container for organizing conversations with custom instructions, default model, and knowledge files",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner UID" },
+        "name": { "type": "string", "description": "Project title" },
+        "description": { "type": "string", "description": "Project description" },
+        "systemInstruction": { "type": "string", "description": "Custom system instructions inherited by threads" },
+        "defaultModel": { "type": "string", "description": "Default Gemini model for this project" },
+        "knowledgeContent": { "type": "string", "description": "Knowledge base text and files context" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last update timestamp" }
+      },
+      "required": ["userId", "name", "createdAt", "updatedAt"]
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "A chat thread containing messages, model reasoning configurations, and active tools",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner UID" },
+        "projectId": { "type": "string", "description": "Optional parent project ID" },
+        "title": { "type": "string", "description": "Conversation title" },
+        "modelId": { "type": "string", "description": "Selected model ID (gemini-3.5-flash-lite, gemini-3.8-flash, gemini-4-argon)" },
+        "systemPrompt": { "type": "string", "description": "Per-conversation system instruction override" },
+        "temperature": { "type": "number", "description": "Generation temperature 0.0 - 2.0" },
+        "maxOutputTokens": { "type": "integer", "description": "Max tokens in output response" },
+        "thinkingBudget": { "type": "integer", "description": "Thinking budget tokens for reasoning models" },
+        "toolWebSearch": { "type": "boolean", "description": "Whether web search grounding is enabled" },
+        "toolCodeExecution": { "type": "boolean", "description": "Whether code execution is enabled" },
+        "toolImageGeneration": { "type": "boolean", "description": "Whether image generation tool is enabled" },
+        "isPinned": { "type": "boolean", "description": "Whether thread is pinned to top" },
+        "isArchived": { "type": "boolean", "description": "Whether thread is archived" },
+        "summary": { "type": "string", "description": "Pinned summary of older messages when context is long" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last update timestamp" }
+      },
+      "required": ["userId", "title", "modelId", "isPinned", "isArchived", "createdAt", "updatedAt"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "An individual message within a conversation",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Author or receiver UID" },
+        "conversationId": { "type": "string", "description": "Parent conversation ID" },
+        "role": { "type": "string", "enum": ["user", "model", "system"], "description": "Message author role" },
+        "content": { "type": "string", "description": "Text body of the message" },
+        "attachments": { "type": "array", "description": "Attached media metadata (mimeType, name, url/uri)" },
+        "groundingSources": { "type": "array", "description": "Web search sources and citations" },
+        "codeExecOutput": { "type": "string", "description": "Code execution result or output" },
+        "generatedImageUrl": { "type": "string", "description": "Image URL if generated" },
+        "tokenCount": { "type": "integer", "description": "Estimated token count" },
+        "characterCount": { "type": "integer", "description": "Character count of message" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["userId", "conversationId", "role", "content", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profiles with quotas and custom settings"
+    },
+    "/users/{userId}/projects/{projectId}": {
+      "schema": "Project",
+      "description": "User projects for contextual knowledge and defaults"
+    },
+    "/users/{userId}/conversations/{conversationId}": {
+      "schema": "Conversation",
+      "description": "User conversation threads"
+    },
+    "/users/{userId}/conversations/{conversationId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Messages within a conversation thread"
+    }
+  }
+}
